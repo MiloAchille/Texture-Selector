@@ -33,12 +33,14 @@ class TextureSelectorSelectOperator(bpy.types.Operator):
         selected_objects = []
         for obj in objects:
             for mat in obj.data.materials:
-                for node in mat.node_tree.nodes:
-                    if node.type == 'TEX_IMAGE' and node.image == texture:
-                        selected_objects.append(obj)
-                        break
-                if obj in selected_objects:
-                    break
+                if mat is not None:
+                    if mat.node_tree is not None:
+                        for node in mat.node_tree.nodes:
+                            if node.type == 'TEX_IMAGE' and node.image == texture:
+                                selected_objects.append(obj)
+                                break
+                        if obj in selected_objects:
+                            break
         bpy.ops.object.select_all(action='DESELECT')
         for obj in selected_objects:
             obj.select_set(True)
@@ -47,17 +49,25 @@ class TextureSelectorSelectOperator(bpy.types.Operator):
 class TextureSelectorProps(bpy.types.PropertyGroup):
     texture_name: bpy.props.StringProperty(name="Texture Name", default="")
 
+class TextureSelectorAddon(bpy.types.AddonPreferences):
+    bl_idname = __name__
+
+    def draw(self, context):
+        layout = self.layout
+
 def register():
     bpy.utils.register_class(TextureSelectorPanel)
     bpy.utils.register_class(TextureSelectorSelectOperator)
     bpy.types.Scene.texture_name = bpy.props.StringProperty(name="Texture Name", default="")
     bpy.utils.register_class(TextureSelectorProps)
+    bpy.utils.register_class(TextureSelectorAddon)
 
 def unregister():
     bpy.utils.unregister_class(TextureSelectorPanel)
     bpy.utils.unregister_class(TextureSelectorSelectOperator)
     del bpy.types.Scene.texture_name
     bpy.utils.unregister_class(TextureSelectorProps)
+    bpy.utils.unregister_class(TextureSelectorAddon)
 
 if __name__ == "__main__":
     register()
