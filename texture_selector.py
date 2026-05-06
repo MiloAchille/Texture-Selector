@@ -29,7 +29,8 @@ class TextureSelectorSelectOperator(bpy.types.Operator):
     def execute(self, context):
         texture_name = context.scene.texture_name
         texture = bpy.data.images.get(texture_name)
-        objects = [obj for obj in bpy.data.objects if obj.type == 'MESH']
+        # Only iterate objects that belong to the active View Layer.
+        objects = [obj for obj in context.view_layer.objects if obj.type == 'MESH']
         selected_objects = []
         for obj in objects:
             for mat in obj.data.materials:
